@@ -57,7 +57,12 @@
 
         <!-- Custom Input Form -->
         <div class="form-group">
-          <label for="starInput">👤 주인공 스타 / 연예인</label>
+          <div class="label-row">
+            <label for="starInput">👤 주인공 스타 / 연예인</label>
+            <button type="button" id="btnOpenStarWiki" class="btn-wiki-tag" title="현재 입력된 스타의 위키백과 프로필 보기">
+              📖 위키백과 인물사전
+            </button>
+          </div>
           <input type="text" id="starInput" class="form-control" placeholder="예: 뉴진스, 송혜교, BTS, 아이유" value="뉴진스">
         </div>
 
@@ -219,10 +224,90 @@
     </div>
   </div>
 
+  <!-- Celebrity Wikipedia Modal -->
+  <div id="wikiModal" class="modal-backdrop">
+    <div class="modal-content wiki-modal-content">
+      <div class="modal-header wiki-modal-header">
+        <div class="wiki-header-title">
+          <span class="wiki-badge"><span class="wiki-dot"></span>WIKIPEDIA PROFILE</span>
+          <h3 id="wikiModalName">스타 인물 위키</h3>
+        </div>
+        <button id="closeWikiBtn" class="modal-close">&times;</button>
+      </div>
+      
+      <div id="wikiModalBody" class="wiki-modal-body">
+        <!-- Loading State -->
+        <div id="wikiLoading" class="wiki-loading">
+          <div class="wiki-spinner"></div>
+          <p>한국어 위키백과(Wikipedia) 실시간 인물 정보를 불러오는 중입니다...</p>
+        </div>
+
+        <!-- Loaded Content -->
+        <div id="wikiDetails" class="wiki-details" style="display: none;">
+          <!-- Hero Section -->
+          <div class="wiki-hero">
+            <div class="wiki-photo-container">
+              <img id="wikiPhoto" src="" alt="스타 프로필 사진" class="wiki-photo">
+              <span class="wiki-photo-tag">위키백과 제공</span>
+            </div>
+            <div class="wiki-hero-text">
+              <div class="wiki-hero-title-row">
+                <h4 id="wikiHeroTitle">스타 이름</h4>
+                <span id="wikiLiveBadge" class="wiki-live-tag">실시간 연동</span>
+              </div>
+              <p id="wikiHeroDesc" class="wiki-desc"></p>
+              <div id="wikiKeywords" class="wiki-keyword-tags"></div>
+            </div>
+          </div>
+
+          <!-- Metadata Info Grid -->
+          <div class="wiki-info-grid">
+            <div class="wiki-info-card">
+              <span class="info-card-label">🏢 소속사 / 레이블</span>
+              <span id="wikiAgency" class="info-card-value">-</span>
+            </div>
+            <div class="wiki-info-card">
+              <span class="info-card-label">🎉 데뷔 시기</span>
+              <span id="wikiDebut" class="info-card-value">-</span>
+            </div>
+            <div class="wiki-info-card">
+              <span class="info-card-label">💖 공식 팬덤</span>
+              <span id="wikiFandom" class="info-card-value">-</span>
+            </div>
+            <div class="wiki-info-card full-span">
+              <span class="info-card-label">🏆 대표 히트작 / 필모그래피</span>
+              <span id="wikiHits" class="info-card-value hits-text">-</span>
+            </div>
+          </div>
+
+          <!-- Wikipedia Extract Body -->
+          <div class="wiki-article-box">
+            <div class="wiki-box-header">
+              <span class="wiki-box-icon">📖</span>
+              <h5>위키백과 인물 개요</h5>
+            </div>
+            <div id="wikiExtract" class="wiki-extract-content"></div>
+          </div>
+
+          <!-- Action Footer -->
+          <div class="wiki-action-footer">
+            <a id="wikiExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-ghost wiki-link-btn">
+              🌐 위키백과 공식 원문 보기 ↗
+            </a>
+            <button type="button" id="btnWriteArticleWithStar" class="btn-generate wiki-apply-btn">
+              ✍️ 이 인물로 AI 기사 즉시 작성하기
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container"></div>
 
   <!-- Scripts -->
+  <script src="wiki-service.js"></script>
   <script src="image-service.js"></script>
   <script src="app.js"></script>
 </body>

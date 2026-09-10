@@ -41,6 +41,26 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const toastContainer = document.getElementById('toastContainer');
 
+  // Celebrity Wikipedia Modal Elements
+  const btnOpenStarWiki = document.getElementById('btnOpenStarWiki');
+  const wikiModal = document.getElementById('wikiModal');
+  const closeWikiBtn = document.getElementById('closeWikiBtn');
+  const wikiModalName = document.getElementById('wikiModalName');
+  const wikiLoading = document.getElementById('wikiLoading');
+  const wikiDetails = document.getElementById('wikiDetails');
+  const wikiPhoto = document.getElementById('wikiPhoto');
+  const wikiHeroTitle = document.getElementById('wikiHeroTitle');
+  const wikiLiveBadge = document.getElementById('wikiLiveBadge');
+  const wikiHeroDesc = document.getElementById('wikiHeroDesc');
+  const wikiKeywords = document.getElementById('wikiKeywords');
+  const wikiAgency = document.getElementById('wikiAgency');
+  const wikiDebut = document.getElementById('wikiDebut');
+  const wikiFandom = document.getElementById('wikiFandom');
+  const wikiHits = document.getElementById('wikiHits');
+  const wikiExtract = document.getElementById('wikiExtract');
+  const wikiExternalLink = document.getElementById('wikiExternalLink');
+  const btnWriteArticleWithStar = document.getElementById('btnWriteArticleWithStar');
+
   // Application State
   let currentFormat = 'standard';
   let currentImageMode = 'curated'; // 'curated' | 'ai' | 'upload'
@@ -111,15 +131,41 @@ document.addEventListener('DOMContentLoaded', () => {
     HOT_TRENDS.forEach((trend, index) => {
       const chip = document.createElement('div');
       chip.className = `trend-chip ${index === 0 ? 'active' : ''}`;
+
+      // Extract individual celebrities for wiki buttons
+      const celebrities = typeof WikiService !== 'undefined' ? WikiService.extractCelebrities(trend.star) : [];
+      let wikiBtnsHtml = '';
+      if (celebrities.length > 0) {
+        wikiBtnsHtml = `<div class="chip-wiki-group">` +
+          celebrities.map(name => `<button type="button" class="chip-wiki-btn" data-star="${name}" title="${name} 위키백과 프로필 보기">📖 ${name} 위키</button>`).join('') +
+          `</div>`;
+      }
+
       chip.innerHTML = `
-        <span class="chip-tag">${trend.tag}</span>
-        <span class="chip-title">${trend.title}</span>
+        <div class="chip-content">
+          <span class="chip-tag">${trend.tag}</span>
+          <span class="chip-title">${trend.title}</span>
+        </div>
+        ${wikiBtnsHtml}
       `;
-      chip.addEventListener('click', () => {
+
+      // Chip click selects the trend (only when not clicking wiki button)
+      chip.addEventListener('click', (e) => {
+        if (e.target.closest('.chip-wiki-btn')) return;
         document.querySelectorAll('.trend-chip').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
         selectTrend(trend);
       });
+
+      // Wiki button clicks open the celebrity wiki
+      chip.querySelectorAll('.chip-wiki-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const starName = btn.getAttribute('data-star');
+          openCelebrityWiki(starName, trend);
+        });
+      });
+
       trendChipsContainer.appendChild(chip);
     });
 
@@ -244,6 +290,83 @@ document.addEventListener('DOMContentLoaded', () => {
       settingsModal.classList.remove('open');
       showToast(key ? 'Gemini API Key가 저장되었습니다!' : '기본 내장 AI 모드로 전환되었습니다.');
     });
+
+    // Star Input Wiki Shortcut
+    btnOpenStarWiki.addEventListener('click', () => {
+      const val = starInput.value.trim();
+      if (!val) {
+        showToast('먼저 스타/연예인 이름을 입력해 주세요.');
+        return;
+      }
+      const celebrities = typeof WikiService !== 'undefined' ? WikiService.extractCelebrities(val) : [val];
+      const targetStar = celebrities.length > 0 ? celebrities[0] : val;
+      openCelebrityWiki(targetStar);
+    });
+
+    // Close Wiki Modal
+    closeWikiBtn.addEventListener('click', closeCelebrityWiki);
+    wikiModal.addEventListener('click', (e) => {
+      if (e.target === wikiModal) closeCelebrityWiki();
+    });
+
+    // Action: Write article with this star
+    btnWriteArticleWithStar.addEventListener('click', () => {
+      if (!currentWikiStarName) return;
+      starInput.value = currentWikiStarName;
+      if (currentWikiRelatedTrend) {
+        topicInput.value = currentWikiRelatedTrend.topic;
+        detailsInput.value = currentWikiRelatedTrend.details;
+        currentTopicCategory = currentWikiRelatedTrend.category;
+      }
+      refreshCurrentImage(true);
+      closeCelebrityWiki();
+      showToast(`${currentWikiStarName} 맞춤형 기사 생성을 시작합니다!`);
+      handleGenerate();
+    });
+  }
+
+  // Celebrity Wikipedia Logic
+  let currentWikiStarName = '';
+  let currentWikiRelatedTrend = null;
+
+  async function openCelebrityWiki(starName, relatedTrend = null) {
+    if (!starName) return;
+    currentWikiStarName = starName;
+    currentWikiRelatedTrend = relatedTrend;
+
+    wikiModalName.textContent = `${starName} 위키백과 프로필`;
+    wikiModal.classList.add('open');
+    wikiLoading.style.display = 'flex';
+    wikiDetails.style.display = 'none';
+
+    try {
+      const data = await WikiService.getCelebrityWiki(starName);
+
+      wikiPhoto.src = data.photoUrl;
+      wikiPhoto.alt = `${data.name} 사진`;
+      wikiHeroTitle.textContent = data.displayTitle || data.name;
+      wikiLiveBadge.textContent = data.hasLiveWiki ? '위키백과 실시간 연동' : 'K-스타 사전 연동';
+      wikiHeroDesc.textContent = data.description || '';
+
+      wikiKeywords.innerHTML = (data.keywords || []).map(k => `<span class="wiki-keyword-chip">#${k}</span>`).join('');
+      wikiAgency.textContent = data.agency || '-';
+      wikiDebut.textContent = data.debut || '-';
+      wikiFandom.textContent = data.fandom || '-';
+      wikiHits.textContent = Array.isArray(data.hits) ? data.hits.join(' · ') : (data.hits || '-');
+      
+      wikiExtract.innerHTML = data.extract ? `<p>${data.extract}</p>` : '<p>위키백과 상세 정보가 준비 중입니다.</p>';
+      wikiExternalLink.href = data.wikiUrl || `https://ko.wikipedia.org/wiki/${encodeURIComponent(starName)}`;
+
+      wikiLoading.style.display = 'none';
+      wikiDetails.style.display = 'block';
+    } catch (err) {
+      console.error('Failed to load wiki profile:', err);
+      wikiLoading.innerHTML = `<p style="color: #ff4d6d;">위키백과 정보를 불러오는 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.</p>`;
+    }
+  }
+
+  function closeCelebrityWiki() {
+    wikiModal.classList.remove('open');
   }
 
   function loadSavedApiKey() {
