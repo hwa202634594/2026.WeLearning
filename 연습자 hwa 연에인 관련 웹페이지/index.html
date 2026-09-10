@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K-STAR AI STUDIO | 대한민국 연예 탑뉴스 AI 글쓰기 & 비주얼 스튜디오</title>
+  <meta name="description" content="실시간 대한민국 연예 탑뉴스 핫토픽을 기반으로 고품질 기사, 블로그 리뷰, SNS 카드뉴스, 쇼츠 대본을 자동 작성하고 맞춤 보도 사진을 연동하는 AI 콘텐츠 스튜디오">
+  <meta property="og:title" content="K-STAR AI STUDIO - 대한민국 연예 탑뉴스 AI 글쓰기">
+  <meta property="og:description" content="AI 연예 기사 자동 작성, 보도 포토 연동, 카드뉴스 배너 PNG 다운로드">
+  <meta property="og:type" content="website">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-icon">🌟</div>
+        <div class="brand-text">
+          <h1>
+            K-STAR AI STUDIO
+            <span class="badge-live"><span class="dot"></span>LIVE TOP NEWS</span>
+          </h1>
+          <p>대한민국 연예 탑뉴스 AI 기사 작성 & 보도 사진 비주얼 연동 스튜디오</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btnSettings" class="btn-ghost" title="Gemini API Key 설정">
+          ⚙️ <span>AI 엔진 설정</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <main class="main-layout">
+      
+      <!-- Left Panel: Input & Controls -->
+      <section class="panel control-panel" aria-label="기사 작성 설정">
+        <div class="panel-header">
+          <h2>🔥 실시간 연예 탑뉴스 핫이슈</h2>
+          <p>오늘 가장 뜨거운 연예계 화제성을 클릭 한 번으로 선택하세요.</p>
+        </div>
+
+        <!-- Hot Trend Preset Chips -->
+        <div class="trend-chips-container">
+          <div class="section-label">
+            <span>실시간 추천 토픽</span>
+            <span style="color: var(--accent-pink); font-size: 0.75rem;">실시간 업데이트</span>
+          </div>
+          <div id="trendChips" class="trend-chips">
+            <!-- Dynamic Trend Chips populated by JS -->
+          </div>
+        </div>
+
+        <!-- Custom Input Form -->
+        <div class="form-group">
+          <label for="starInput">👤 주인공 스타 / 연예인</label>
+          <input type="text" id="starInput" class="form-control" placeholder="예: 뉴진스, 송혜교, BTS, 아이유" value="뉴진스">
+        </div>
+
+        <div class="form-group">
+          <label for="topicInput">📰 핵심 뉴스 주제 / 헤드라인 키워드</label>
+          <input type="text" id="topicInput" class="form-control" placeholder="예: 빌보드 200 차트 1위 및 월드투어 완판" value="빌보드 200 차트 1위 및 월드투어 완판">
+        </div>
+
+        <div class="form-group">
+          <label for="detailsInput">📝 세부 팩트 & 비하인드 (선택)</label>
+          <textarea id="detailsInput" class="form-control" placeholder="구체적인 상황, 팬 반응, 관계자 코멘트 등 팩트를 적으면 더욱 정교한 기사가 완성됩니다.">음원 공개 2주 만에 글로벌 스트리밍 3억 회 돌파, 전 세계 15개 도시 스타디움 투어 전석 매진 신기록 달성</textarea>
+        </div>
+
+        <!-- Writing Mode Selector -->
+        <div class="section-label">
+          <span>글쓰기 포맷 & 톤앤매너</span>
+        </div>
+        <div class="format-grid">
+          <div class="format-card active" data-format="standard">
+            <div class="format-card-header">
+              <span class="format-icon">📰</span>
+              <span class="format-title">정통 연예 기사</span>
+            </div>
+            <div class="format-desc">단독/속보, 헤드라인, 3줄 요약, 육하원칙 본문</div>
+          </div>
+
+          <div class="format-card" data-format="blog">
+            <div class="format-card-header">
+              <span class="format-icon">✍️</span>
+              <span class="format-title">블로그 포스팅</span>
+            </div>
+            <div class="format-desc">친근한 구어체, 관전 포인트, 네티즌 생생 반응</div>
+          </div>
+
+          <div class="format-card" data-format="sns">
+            <div class="format-card-header">
+              <span class="format-icon">📱</span>
+              <span class="format-title">인스타 카드뉴스</span>
+            </div>
+            <div class="format-desc">후킹 첫줄, 감성 캡션, 3초 요약, 필수 해시태그</div>
+          </div>
+
+          <div class="format-card" data-format="shorts">
+            <div class="format-card-header">
+              <span class="format-icon">🎬</span>
+              <span class="format-title">쇼츠/릴스 대본</span>
+            </div>
+            <div class="format-desc">60초 러닝타임, 씬별 타이밍, 효과음 가이드</div>
+          </div>
+        </div>
+
+        <!-- Image Mode Tabs -->
+        <div class="section-label">
+          <span>연동 보도 사진 소스</span>
+        </div>
+        <div class="image-mode-tabs">
+          <button class="image-tab active" data-mode="curated">📸 고화질 보도 포토</button>
+          <button class="image-tab" data-mode="ai">✨ AI 실시간 생성</button>
+          <button class="image-tab" data-mode="upload">📁 내 사진 업로드</button>
+        </div>
+
+        <!-- Hidden File Input for Image Upload -->
+        <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+
+        <!-- Generate Action Button -->
+        <button id="generateBtn" class="btn-generate">
+          <span>⚡ AI 연예 뉴스 기사 & 비주얼 생성</span>
+        </button>
+      </section>
+
+      <!-- Right Panel: Visual Studio & Generated Content -->
+      <section class="result-section" aria-label="기사 및 비주얼 결과">
+        
+        <!-- 1. Visual Card & Overlay Studio -->
+        <div class="visual-card">
+          <div class="visual-preview-wrapper" id="visualWrapper">
+            <img id="visualImg" class="visual-img" src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80" alt="연예 뉴스 보도 포토">
+            
+            <div class="visual-overlay">
+              <div class="overlay-top">
+                <span id="overlayBadge" class="news-badge">속보</span>
+                <span class="watermark-logo">K-STAR NEWS</span>
+              </div>
+              <div class="overlay-bottom">
+                <h2 id="overlayHeadline" class="overlay-headline">K-STAR NEWS AI 스튜디오</h2>
+                <p id="overlaySub" class="overlay-sub">뉴진스 | K-STAR 보도국</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="visual-toolbar">
+            <div id="imageStatusText" class="image-status-text">
+              <span>📸 포토: 화려한 아레나 월드투어 무대 퍼포먼스</span>
+            </div>
+            <div class="toolbar-btn-group">
+              <button id="btnChangeImage" class="btn-tool" title="다른 사진으로 교체">🔄 <span>사진 변경</span></button>
+              <button id="btnUploadImage" class="btn-tool" title="로컬 이미지 불러오기">📁 <span>사진 업로드</span></button>
+              <button id="btnDownloadCard" class="btn-tool accent" title="자막 합성 카드뉴스 이미지 저장">💾 <span>카드 다운로드 (PNG)</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Article Reader & Editor Workspace -->
+        <article class="article-panel">
+          <div class="article-header">
+            <div class="article-meta">
+              <span id="articleCategory" class="badge-live" style="background: rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.5); color: #c4b5fd;">정통 연예 기사 / 특종</span>
+              <span id="articleDate">2026.09.10 11:00</span>
+              <span id="wordCountBadge" style="color: var(--text-muted); font-size: 0.8rem;">작성 대기 중</span>
+            </div>
+            <div class="article-actions">
+              <button id="btnSpeak" class="btn-action" title="기사 아나운서 음성 낭독">
+                <span>🔊 음성 브리핑</span>
+              </button>
+              <button id="btnCopyText" class="btn-action" title="일반 텍스트 복사">
+                <span>📋 텍스트 복사</span>
+              </button>
+              <button id="btnCopyMd" class="btn-action" title="마크다운 형식 복사">
+                <span>📝 마크다운</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Content Body -->
+          <div id="articleBody" class="article-body">
+            <div class="empty-state">
+              <div class="empty-icon">📰</div>
+              <div class="empty-title">연예 핫이슈를 선택하고 기사를 생성해 보세요</div>
+              <p class="empty-desc">좌측에서 스타와 핫토픽을 선택한 후 <strong>[AI 연예 뉴스 기사 & 비주얼 생성]</strong> 버튼을 누르면 완성도 높은 보도 기사와 매칭 이미지가 즉시 완성됩니다.</p>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Settings Modal for Optional Gemini API Key -->
+  <div id="settingsModal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>⚙️ AI 엔진 설정</h3>
+        <button id="closeSettingsBtn" class="modal-close">&times;</button>
+      </div>
+      <div style="margin-bottom: 16px; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+        기본적으로 <strong>고성능 내장 연예 보도 AI 엔진</strong>이 작동하여 API 키 없이도 즉시 기사가 생성됩니다.<br><br>
+        구글 Gemini API 키를 등록하시면 최신 Gemini LLM과 실시간으로 연동하여 더욱 자유로운 기사를 생성할 수 있습니다.
+      </div>
+      <div class="form-group">
+        <label for="apiKeyInput">Google Gemini API Key (선택)</label>
+        <input type="password" id="apiKeyInput" class="form-control" placeholder="AIzaSy...">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button id="saveSettingsBtn" class="btn-generate" style="width: auto; padding: 10px 20px; font-size: 0.9rem;">
+          설정 저장
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="image-service.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
